@@ -1,7 +1,7 @@
 <template>
     <div class="shadow-box big-padding mb-3 container">
         <div class="row">
-            <div class="col-5">
+            <div class="col-12 col-sm-5">
                 <h4>{{ name }}</h4>
                 <div class="image mb-2">
                     <span class="me-1">{{ imageName }}:</span><span class="tag">{{ imageTag }}</span>
@@ -14,7 +14,7 @@
                     </a>
                 </div>
             </div>
-            <div class="col-7">
+            <div class="col-12 col-sm-7 mt-2 mt-sm-0">
                 <div class="function">
                     <div class="btn-group me-2" role="group">
                         <router-link v-if="!isEditMode && (status === 'running' || status === 'healthy')" class="btn btn-normal" :to="terminalRouteLink" disabled="">
@@ -402,6 +402,10 @@ export default defineComponent({
         width: 100%;
         align-items: center;
         justify-content: end;
+
+        @media (max-width: 575.98px) {
+            justify-content: start;
+        }
     }
 
     .stats {

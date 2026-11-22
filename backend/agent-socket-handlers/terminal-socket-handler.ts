@@ -174,23 +174,14 @@ export class TerminalSocketHandler extends AgentSocketHandler {
                     throw new Error("Terminal name must be a string.");
                 }
 
-                if (typeof rows !== "number") {
-                    throw new Error("Command must be a number.");
+                if (!Number.isInteger(rows) || (rows as number) < 1) {
+                    throw new Error("Rows must be a positive integer.");
                 }
-                if (typeof cols !== "number") {
-                    throw new Error("Command must be a number.");
+                if (!Number.isInteger(cols) || (cols as number) < 1) {
+                    throw new Error("Cols must be a positive integer.");
                 }
 
-                let terminal = Terminal.getTerminal(terminalName);
-
-                // log.info("terminal", terminal);
-                if (terminal instanceof Terminal) {
-                    //log.debug("terminalInput", "Terminal found, writing to terminal.");
-                    terminal.rows = rows;
-                    terminal.cols = cols;
-                } else {
-                    throw new Error(`${terminalName} Terminal not found.`);
-                }
+                Terminal.resize(terminalName, rows as number, cols as number);
             } catch (e) {
                 log.debug("terminalResize",
                         // Added to prevent the lint error when adding the type

@@ -26,6 +26,9 @@ import theme from "./mixins/theme";
 // Set Title
 document.title = document.title + " - " + location.host;
 
+// Bootstrap's md breakpoint, the width at which the dashboard drops to one column
+const mobileQuery = window.matchMedia("(max-width: 767.98px)");
+
 const app = createApp(rootApp());
 
 app.use(Toast, {
@@ -54,10 +57,18 @@ function rootApp() {
                 loggedIn: false,
                 allowLoginDialog: false,
                 username: null,
+                isMobile: mobileQuery.matches,
+                stackMenuOpen: false,
             };
         },
         computed: {
 
+        },
+        created() {
+            mobileQuery.addEventListener("change", (e) => {
+                this.isMobile = e.matches;
+                this.stackMenuOpen = false;
+            });
         },
         methods: {
 

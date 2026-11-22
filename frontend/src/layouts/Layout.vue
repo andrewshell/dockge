@@ -9,27 +9,30 @@
             </div>
         </div>
 
-        <!-- Desktop header -->
-        <header v-if="! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
+            <button v-if="$root.isMobile && $root.loggedIn" type="button" class="btn btn-normal stack-menu-button" aria-label="Stacks" @click="$root.stackMenuOpen = true">
+                <font-awesome-icon icon="bars" />
+            </button>
+
             <router-link to="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
                 <span class="fs-4 title">Dockge</span>
             </router-link>
 
             <a v-if="hasNewVersion" target="_blank" href="https://github.com/louislam/dockge/releases" class="btn btn-warning me-3">
-                <font-awesome-icon icon="arrow-alt-circle-up" /> {{ $t("newUpdate") }}
+                <font-awesome-icon icon="arrow-alt-circle-up" /> <span class="nav-label">{{ $t("newUpdate") }}</span>
             </a>
 
             <ul class="nav nav-pills">
                 <li v-if="$root.loggedIn" class="nav-item me-2">
                     <router-link to="/" class="nav-link">
-                        <font-awesome-icon icon="home" /> {{ $t("home") }}
+                        <font-awesome-icon icon="home" /> <span class="nav-label">{{ $t("home") }}</span>
                     </router-link>
                 </li>
 
                 <li v-if="$root.loggedIn" class="nav-item me-2">
                     <router-link to="/console" class="nav-link">
-                        <font-awesome-icon icon="terminal" /> {{ $t("console") }}
+                        <font-awesome-icon icon="terminal" /> <span class="nav-label">{{ $t("console") }}</span>
                     </router-link>
                 </li>
 
@@ -67,7 +70,7 @@
                             </li>
 
                             <li>
-                                <router-link to="/settings/general" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
+                                <router-link :to="$root.isMobile ? '/settings' : '/settings/general'" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
                                     <font-awesome-icon icon="cog" /> {{ $t("Settings") }}
                                 </router-link>
                             </li>
@@ -164,41 +167,6 @@ export default {
     }
 }
 
-.bottom-nav {
-    z-index: 1000;
-    position: fixed;
-    bottom: 0;
-    height: calc(60px + env(safe-area-inset-bottom));
-    width: 100%;
-    left: 0;
-    background-color: #fff;
-    box-shadow: 0 15px 47px 0 rgba(0, 0, 0, 0.05), 0 5px 14px 0 rgba(0, 0, 0, 0.05);
-    text-align: center;
-    white-space: nowrap;
-    padding: 0 10px env(safe-area-inset-bottom);
-
-    a {
-        text-align: center;
-        width: 25%;
-        display: inline-block;
-        height: 100%;
-        padding: 8px 10px 0;
-        font-size: 13px;
-        color: #c1c1c1;
-        overflow: hidden;
-        text-decoration: none;
-
-        &.router-link-exact-active, &.active {
-            color: $primary;
-            font-weight: bold;
-        }
-
-        div {
-            font-size: 20px;
-        }
-    }
-}
-
 main {
     min-height: calc(100vh - 160px);
 }
@@ -209,6 +177,49 @@ main {
 
 .nav {
     margin-right: 25px;
+}
+
+// Phones: one compact row, icon-only nav
+@media (max-width: 767.98px) {
+    header {
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        align-items: center;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+
+        object {
+            width: 32px;
+            height: 32px;
+            margin-left: 0.5rem !important;
+        }
+
+        > a:first-of-type {
+            margin-bottom: 0 !important;
+            margin-right: auto;
+        }
+    }
+
+    .stack-menu-button {
+        margin-left: 0.75rem;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .nav {
+        margin-right: 0.75rem;
+        flex-wrap: nowrap;
+    }
+
+    .nav-label {
+        display: none;
+    }
+}
+
+@media (max-width: 419.98px) {
+    header .title {
+        display: none;
+    }
 }
 
 .lost-connection {
@@ -305,8 +316,5 @@ main {
         }
     }
 
-    .bottom-nav {
-        background-color: $dark-bg;
-    }
 }
 </style>

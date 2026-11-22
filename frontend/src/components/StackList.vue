@@ -112,21 +112,20 @@ export default {
     computed: {
         /**
          * Improve the sticky appearance of the list by increasing its
-         * height as user scrolls down.
-         * Not used on mobile.
+         * height as user scrolls down. Without a scrollbar the list
+         * grows with its content and scrolls with the page.
          * @returns {object} Style for stack list
          */
         boxStyle() {
-            if (window.innerWidth > 550) {
+            if (!this.scrollbar) {
                 return {
-                    height: `calc(100vh - 160px + ${this.windowTop}px)`,
-                };
-            } else {
-                return {
-                    height: "calc(100vh - 160px)",
+                    height: "auto",
+                    position: "static",
                 };
             }
-
+            return {
+                height: `calc(100vh - 160px + ${this.windowTop}px)`,
+            };
         },
 
         /**
@@ -237,6 +236,10 @@ export default {
 
             if (this.selectMode) {
                 listHeaderHeight += 42;
+            }
+
+            if (!this.scrollbar) {
+                return {};
             }
 
             return {

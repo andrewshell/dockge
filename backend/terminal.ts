@@ -17,6 +17,13 @@ import { log } from "./log";
 export class Terminal {
     protected static terminalMap : Map<string, Terminal> = new Map();
 
+    /**
+     * Width each terminal name's client last reported. A compose action
+     * creates its pty after the client has measured, so the pty starts at
+     * the width the client will render it at.
+     */
+    protected static clientCols : Map<string, number> = new Map();
+
     protected _ptyProcess? : pty.IPty;
     protected server : DockgeServer;
     protected buffer : LimitQueue<string> = new LimitQueue(100);
@@ -43,6 +50,7 @@ export class Terminal {
         this.file = file;
         this.args = args;
         this.cwd = cwd;
+        this._cols = Terminal.clientCols.get(name) ?? TERMINAL_COLS;
 
         Terminal.terminalMap.set(this.name, this);
     }
@@ -115,7 +123,7 @@ export class Terminal {
             this._ptyProcess = pty.spawn(this.file, this.args, {
                 name: this.name,
                 cwd: this.cwd,
-                cols: TERMINAL_COLS,
+                cols: this.cols,
                 rows: this.rows,
             });
 
@@ -208,6 +216,19 @@ export class Terminal {
      * Get a running and non-exited terminal
      * @param name
      */
+    /**
+     * Record the size a client renders a terminal at, and apply it if the
+     * terminal is running.
+     */
+    public static resize(name : string, rows : number, cols : number) {
+        Terminal.clientCols.set(name, cols);
+        const terminal = Terminal.getTerminal(name);
+        if (terminal) {
+            terminal.rows = rows;
+            terminal.cols = cols;
+        }
+    }
+
     public static getTerminal(name : string) : Terminal | undefined {
         return Terminal.terminalMap.get(name);
     }

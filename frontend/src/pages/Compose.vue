@@ -9,7 +9,7 @@
                 </span>
             </h1>
 
-            <div v-if="stack.isManagedByDockge" class="mb-3">
+            <div v-if="stack.isManagedByDockge" class="mb-3 stack-actions">
                 <div class="btn-group me-2" role="group">
                     <button v-if="isEditMode" class="btn btn-primary" :disabled="processing" @click="deployStack">
                         <font-awesome-icon icon="rocket" class="me-1" />
@@ -70,10 +70,11 @@
 
             <!-- Progress Terminal -->
             <transition name="slide-fade" appear>
+                <!-- Collapsed rather than display: none, so it can measure its width before an action starts -->
                 <Terminal
-                    v-show="showProgressTerminal"
                     ref="progressTerminal"
                     class="mb-3 terminal"
+                    :class="{ collapsed: !showProgressTerminal }"
                     :name="terminalName"
                     :endpoint="endpoint"
                     :rows="progressTerminalRows"
@@ -851,11 +852,49 @@ export default {
 
 .terminal {
     height: 200px;
+
+    &.collapsed {
+        height: 0;
+        margin: 0 !important;
+        padding-top: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+        visibility: hidden;
+    }
 }
 
 .editor-box {
     font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
+}
+
+// Phones: the action group spans the row and shares it evenly, icon over label
+@media (max-width: 575.98px) {
+    .stack-actions {
+        > .btn-group {
+            display: flex;
+            margin: 0 0 0.5rem 0 !important;
+
+            > .btn {
+                flex: 1 1 0;
+                min-width: 0;
+                padding-left: 4px;
+                padding-right: 4px;
+                font-size: 0.875rem;
+
+                svg {
+                    display: block;
+                    margin: 0 auto 2px !important;
+                }
+            }
+
+            :deep(.dropdown-toggle) {
+                height: 100%;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+    }
 }
 
 .agent-name {

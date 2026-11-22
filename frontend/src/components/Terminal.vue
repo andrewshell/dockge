@@ -73,6 +73,14 @@ export default {
             cursorPosition: 0,
         };
     },
+    watch: {
+        // The server sizes a new pty from the last size reported under its name
+        name() {
+            if (this.terminalFitAddOn) {
+                this.onResizeEvent();
+            }
+        },
+    },
     created() {
 
     },
@@ -112,9 +120,12 @@ export default {
         });
 
         // Notify parent component when data is received
-        this.terminal.onCursorMove(() => {
-            console.debug("onData triggered");
-            if (this.first) {
+        // Not onCursorMove: a one-row terminal can end each write with the
+        // cursor back where it started. An empty write moves nothing.
+        this.terminal.onWriteParsed(() => {
+            const buffer = this.terminal.buffer.active;
+            const written = buffer.baseY > 0 || buffer.cursorY > 0 || buffer.cursorX > 0;
+            if (this.first && written) {
                 this.$emit("has-data");
                 this.first = false;
             }
@@ -142,7 +153,7 @@ export default {
     },
 
     unmounted() {
-        window.removeEventListener("resize", this.onResizeEvent); // Remove the resize event listener from the window object.
+        this.resizeObserver?.disconnect();
         this.$root.unbindTerminal(this.name);
         this.terminal.dispose();
         this.$refs.terminal?.removeEventListener("contextmenu", this.handleContextMenu);
@@ -278,7 +289,11 @@ export default {
             if (!Object.hasOwn(this, "terminalFitAddOn")) {
                 this.terminalFitAddOn = new FitAddon();
                 this.terminal.loadAddon(this.terminalFitAddOn);
-                window.addEventListener("resize", this.onResizeEvent);
+                // Observe the element, not the window: a terminal mounted
+                // hidden (v-show) has no size until it is shown, and showing
+                // it fires no window resize.
+                this.resizeObserver = new ResizeObserver(this.onResizeEvent);
+                this.resizeObserver.observe(this.$refs.terminal);
             }
             this.terminalFitAddOn.fit();
         },
@@ -287,6 +302,9 @@ export default {
          */
         onResizeEvent() {
             this.terminalFitAddOn.fit();
+            if (!this.name) {
+                return;
+            }
             let rows = this.terminal.rows;
             let cols = this.terminal.cols;
             this.$root.emitAgent(this.endpoint, "terminalResize", this.name, rows, cols);
