@@ -1,4 +1,4 @@
-FROM node:22.23.4-bookworm-slim
+FROM node:26.13.1-trixie-slim
 RUN apt update && apt install --yes --no-install-recommends \
     curl \
     ca-certificates \
