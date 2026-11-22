@@ -15,6 +15,9 @@ for (let arg of args) {
     replacedArgs.push(arg);
 }
 
-let child = childProcess.spawn(cmd, replacedArgs);
-child.stdout.pipe(process.stdout);
-child.stderr.pipe(process.stderr);
+let child = childProcess.spawn(cmd, replacedArgs, { stdio: "inherit" });
+child.on("error", (error) => {
+    console.error(error.message);
+    process.exit(1);
+});
+child.on("exit", (code) => process.exit(code ?? 1));
